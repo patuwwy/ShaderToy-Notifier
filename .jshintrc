@@ -41,7 +41,7 @@
     "boss"          : false,     // true: Tolerate assignments where comparisons would be expected
     "debug"         : false,     // true: Allow debugger statements e.g. browser breakpoints.
     "eqnull"        : false,     // true: Tolerate use of `== null`
-    "esversion"     : 5,         // {int} Specify the ECMAScript version to which the code must adhere.
+    "esversion"     : 6,         // {int} Specify the ECMAScript version to which the code must adhere.
     "moz"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)
                                  // (ex: `for each`, multiple try/catch, function expression…)
     "evil"          : false,     // true: Tolerate use of `eval` and `new Function()`
@@ -61,7 +61,7 @@
     "shadow"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`
     "sub"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation
     "supernew"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`
-    "validthis"     : false,     // true: Tolerate using this in a non-constructor function
+    "validthis"     : true,     // true: Tolerate using this in a non-constructor function
 
     // Environments
     "browser"       : true,     // Web Browser (window, document, etc)

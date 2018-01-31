@@ -1,64 +1,78 @@
-/* global localStorage, Notification */
+/* global localStorage, Notification, Promise, fetch */
 
 (function shaderNotifierBackgroundProcess() {
     'use strict';
 
-    var NEWEST_URL = 'https://www.shadertoy.com/results?query=&sort=newest&filter=';
+    var NEWEST_URL = 'https://www.shadertoy.com/results?query=&sort=newest&filter=',
+
+        latestShaders = [],
+
+        lastSeenShader = null;
+
+    function updateBadgeCount(badgeText) {
+        chrome.browserAction.setBadgeBackgroundColor({color: 'red'});
+        chrome.browserAction.setBadgeText({text: badgeText});
+    }
 
     function notify(data) {
         var notification = new Notification(data.id, {
-            icon: data.icon,
-            body: data.body
+            icon: '../../icons/icon_active_128.png',
+            body: data.body,
+            image: data.icon
         });
 
-        notification.onclick = function() {
-            window.open('https://shadertoy.com/view/' + data.id);
-        };
+        if (data.id) {
+            notification.onclick = function() {
+                updateBadgeCount(0);
+                lastSeenShader = latestShaders[0];
+                localStorage.setItem('lastSeenShader', lastSeenShader);
+                window.open('https://shadertoy.com/view/' + data.id);
+            };
+        }
     }
 
     function parseText(text) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             var fragment = text.match(/var gShaderIDs=\[".*"]/)[0].replace('var gShaderIDs=', ''),
                 jsonData = {};
 
             try {
                 jsonData = JSON.parse(fragment);
                 resolve(jsonData);
-            } catch (e) {
-                reject(e);
+            } catch (ignore) {
             }
         });
     }
 
     function compareData(data) {
-        return new Promise((resolve, reject) => {
-            var lastCheckData = localStorage.getItem('shaders');
+        return new Promise((resolve) => {
+            var lastCheckData = localStorage.getItem('shaders'),
+                lastStoredShader = localStorage.getItem('lastSeenShader'),
+                newsCount = null;
 
             if (data) {
+                latestShaders = data;
                 localStorage.setItem('shaders', JSON.stringify(data));
             }
 
-            if (lastCheckData) {
+            if (lastStoredShader) {
                 lastCheckData = JSON.parse(lastCheckData);
 
-                /*
-                if (newsCount > -1) {
-                    chrome.browserAction.setBadgeText({text: newsCount});
+                if (lastStoredShader) {
+                    newsCount = !~data.indexOf(lastStoredShader) ? '16+' : (data.indexOf(lastStoredShader) || '').toString();
                 }
-                */
 
-                // chrome.browserAction.setBadgeText({text: 0});
-
-                if (lastCheckData[0] == data[0]) {
-                    resolve(null);
-                    resolve(data[0]);
-                } else {
+                if (lastCheckData[0] !== data[0]) {
                     resolve(data[0]);
                 }
             } else {
-                resolve(null);
+                lastStoredShader = data[0];
+                lastStoredShader = localStorage.setItem('lastSeenShader', data[0]);
+                resolve(data[0]);
+                newsCount = 'Hi !';
             }
 
+            updateBadgeCount(newsCount);
         });
     }
 
@@ -89,10 +103,11 @@
             .catch(onError);
     }
 
-    chrome.alarms.onAlarm.addListener(function(alarm){
+    chrome.alarms.onAlarm.addListener(function() {
         getData();
     });
 
-    chrome.alarms.create("Start", {periodInMinutes:1});
+    chrome.alarms.create('Fetch', {periodInMinutes: 1});
 
+    getData();
 }());

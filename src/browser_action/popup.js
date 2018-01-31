@@ -1,4 +1,4 @@
-/* global localStorage, document */
+/* global chrome, localStorage, document, console */
 (function shaderNotifierPopup() {
     'use strict';
 
@@ -14,12 +14,7 @@
         this.id = id;
         this.create();
         this.append();
-        this.getMeta();
     }
-
-    Shader.prototype.getMeta = function() {
-
-    };
 
     Shader.prototype.create = function() {
         this.element = document.createElement('li');
@@ -47,7 +42,13 @@
             shaders.forEach(function(id) {
                 return new Shader(id);
             });
-        } catch (ignore) {}
+
+            chrome.browserAction.setBadgeText({text: ''});
+
+            localStorage.setItem('lastSeenShader', shaders[0]);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     function onListClick(e) {

@@ -1,2 +1,10 @@
 # ShaderToy-Notifier
-Chrome extension to notify about new shaders on ShaderToy
+Chrome extension notifies about new shaders on ShaderToy.
+
+2018 by Patryk Falba (Patu/AberrationCreations^Futuris)
+
+![](./images/notification.png)
+
+![](./images/popup.png)
+
+

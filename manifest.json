@@ -1,6 +1,6 @@
 {
   "name": "ShaderToy Notifier",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "description": "ShaderToy Notifier",
   "homepage_url": "http://patrykfalba.eu",
@@ -12,7 +12,7 @@
   "permissions": [
     "notifications",
     "tabs",
-    "https://*/",
+    "https://www.shadertoy.com/results?query=&sort=newest&filter=",
     "alarms"
   ],
   "background": {
@@ -27,7 +27,6 @@
     "default_popup": "src/browser_action/browser_action.html"
     },
     "web_accessible_resources": [
-        "popup.js",
-        "images/*.png"
+        "popup.js"
     ]
 }
