@@ -1,4 +1,4 @@
-/*global localStorage, document, Image */
+/* global localStorage, document */
 (function shaderNotifierPopup() {
     'use strict';
 
@@ -17,11 +17,11 @@
         this.getMeta();
     }
 
-    Shader.prototype.getMeta = function () {
+    Shader.prototype.getMeta = function() {
 
     };
 
-    Shader.prototype.create = function () {
+    Shader.prototype.create = function() {
         this.element = document.createElement('li');
         this.element.innerHTML = SHADER_PREVIEW_TEMPLATE
             .replace('{img}', SHADERS_PREVIEW_URL)
@@ -29,7 +29,7 @@
             .replace(/\{id\}/g, this.id);
     };
 
-    Shader.prototype.append = function () {
+    Shader.prototype.append = function() {
         shadersListElement.appendChild(this.element);
     };
 
@@ -39,16 +39,20 @@
 
         try {
             shaders = JSON.parse(shadersList);
-        } catch (ignore) {}
 
-        shaders.forEach(function (id) {
-            return new Shader(id);
-        });
+            shaders = shaders || [];
+
+            shadersListElement.innerHTML = '';
+
+            shaders.forEach(function(id) {
+                return new Shader(id);
+            });
+        } catch (ignore) {}
     }
 
     function onListClick(e) {
         if (e.target.tagName === 'IMG') {
-            chrome.tabs.create({url: e.target.parentElement.href });
+            chrome.tabs.create({url: e.target.parentElement.href});
         }
         return false;
     }
