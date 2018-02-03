@@ -1,17 +1,17 @@
-/* global localStorage, Notification, Promise, fetch */
+/* global localStorage, Notification, fetch */
 
-(function shaderNotifierBackgroundProcess() {
+(() => {
     'use strict';
 
     var NEWEST_URL = 'https://www.shadertoy.com/results?query=&sort=newest&filter=',
 
-        latestShaders = [],
-
-        lastSeenShader = null;
+        latestShaders = [];
 
     function updateBadgeCount(badgeText) {
-        chrome.browserAction.setBadgeBackgroundColor({color: 'red'});
-        chrome.browserAction.setBadgeText({text: badgeText});
+        if (window.chrome) {
+            chrome.browserAction.setBadgeBackgroundColor({color: 'red'});
+            chrome.browserAction.setBadgeText({text: badgeText});
+        }
     }
 
     function notify(data) {
@@ -22,17 +22,16 @@
         });
 
         if (data.id) {
-            notification.onclick = function() {
-                updateBadgeCount(0);
-                lastSeenShader = latestShaders[0];
-                localStorage.setItem('lastSeenShader', lastSeenShader);
+            notification.onclick = () => {
+                localStorage.setItem('lastSeenShader', latestShaders[0]);
                 window.open('https://shadertoy.com/view/' + data.id);
+                updateBadgeCount(0);
             };
         }
     }
 
     function parseText(text) {
-        return new Promise(function(resolve) {
+        return new Promise((resolve) => {
             var fragment = text.match(/var gShaderIDs=\[".*"]/)[0].replace('var gShaderIDs=', ''),
                 jsonData = {};
 
@@ -45,19 +44,19 @@
     }
 
     function compareData(data) {
-        return new Promise((resolve) => {
-            var lastCheckData = localStorage.getItem('shaders'),
+        return new Promise((resolve, reject) => {
+            var lastCheckData = JSON.parse(localStorage.getItem('shaders')),
                 lastStoredShader = localStorage.getItem('lastSeenShader'),
                 newsCount = null;
 
-            if (data) {
-                latestShaders = data;
-                localStorage.setItem('shaders', JSON.stringify(data));
+            if (!data) {
+                reject(new Error('no data'));
             }
 
-            if (lastStoredShader) {
-                lastCheckData = JSON.parse(lastCheckData);
+            latestShaders = data;
+            localStorage.setItem('shaders', JSON.stringify(data));
 
+            if (lastCheckData) {
                 if (lastStoredShader) {
                     newsCount = !~data.indexOf(lastStoredShader) ? '16+' : (data.indexOf(lastStoredShader) || '').toString();
                 }
@@ -66,10 +65,13 @@
                     resolve(data[0]);
                 }
             } else {
-                lastStoredShader = data[0];
-                lastStoredShader = localStorage.setItem('lastSeenShader', data[0]);
-                resolve(data[0]);
+                lastStoredShader = latestShaders[0];
+                localStorage.setItem('lastSeenShader', lastStoredShader);
+
+                localStorage.setItem('notifications', true);
+
                 newsCount = 'Hi !';
+                resolve(latestShaders[0]);
             }
 
             updateBadgeCount(newsCount);
@@ -77,7 +79,9 @@
     }
 
     function notifyUser(shaderId) {
-        if (shaderId) {
+        var notificationsEnabled = localStorage.getItem('notifications');
+
+        if (shaderId && notificationsEnabled) {
             notify({
                 id: shaderId,
                 icon: 'https://www.shadertoy.com/media/shaders/' + shaderId + '.jpg',
@@ -86,21 +90,16 @@
         }
     }
 
-    function onError(e) {
-        notify({
-            id: null,
-            icon: '?',
-            body: e
-        });
-    }
-
     function getData() {
+        if (navigator.connection.type === 'none') {
+            return;
+        }
+
         fetch(NEWEST_URL)
             .then(response => response.text())
             .then(parseText)
             .then(compareData)
-            .then(notifyUser)
-            .catch(onError);
+            .then(notifyUser);
     }
 
     chrome.alarms.onAlarm.addListener(function() {
@@ -110,4 +109,4 @@
     chrome.alarms.create('Fetch', {periodInMinutes: 1});
 
     getData();
-}());
+})();

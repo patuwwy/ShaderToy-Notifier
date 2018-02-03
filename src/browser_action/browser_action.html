@@ -1,17 +1,10 @@
 <!doctype html>
 <style type="text/css">
-
-    ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: block;
-    }
-
     body {
         margin: 0;
-        background: #fff;
-        color: #222;
+        background: #181818;
+        color: #fff;
+        padding: 5px;
     }
 
     #main-popup {
@@ -19,33 +12,66 @@
         font-family: Helvetica, Ubuntu, Arial, sans-serif;
     }
 
+    ul {
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
     li {
-        width: 25%;
         display: block;
-        float: left;
+        align-self: center;
+        justify-self: center;
+        margin: 5px;
     }
 
     li img {
-        width: 160px;
-        height: 90px;
+        width: 100%;
         display: block;
     }
 
-    .desc {
-        clear: both;
-        float: none;
-        text-align: right;
-        padding: 5px;
-    }
-
     a {
-        color: #224;
+        color: rgb(0, 159, 252);
+        text-decoration: none;
     }
 
+    .options {
+        font-size: 14px;
+        font-weight: bold;
+        padding: 5px 10px;
+    }
+
+    .options .col {
+        float: left;
+        width: 50%;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    .options .col-right {
+        text-align: right;
+    }
+
+    .options:after {
+        display: block;
+        float: none;
+        clear: both;
+        content: "";
+    }
 </style>
 <div id="main-popup">
     <ul id="shaders-list">
         <li>No shaders fetched. Try again later.</li>
     </ul>
+    <div class="options">
+        <div class="col col-left">
+            <a href="">github</a>
+        </div>
+        <div class="col col-right">
+            <label>Show notifications</label><input type="checkbox" id="notificationsInput"/>
+        </div>
+    </div>
 </div>
 <script src="popup.js"></script>
