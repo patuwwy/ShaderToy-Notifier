@@ -91,7 +91,7 @@
     }
 
     function getData() {
-        if (navigator.connection.type === 'none') {
+        if (navigator.connection && navigator.connection.type === 'none') {
             return;
         }
 
