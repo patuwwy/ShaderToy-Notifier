@@ -32,12 +32,10 @@
 
     function parseText(text) {
         return new Promise((resolve) => {
-            var fragment = text.match(/var gShaderIDs=\[".*"]/)[0].replace('var gShaderIDs=', ''),
-                jsonData = {};
+            var shaders = text.match(/var gShaders=\[[^]*?(?=var gUseScreenshots)/gm)[0].match(/(?<=info":{"id":")[a-zA-Z0-9]{5,}(?=")/g)
 
             try {
-                jsonData = JSON.parse(fragment);
-                resolve(jsonData);
+                resolve(shaders);
             } catch (ignore) {
             }
         });
